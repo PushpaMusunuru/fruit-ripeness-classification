@@ -1,4 +1,4 @@
-# fruit-ripeness-classification
+
 # 🍌 Fruit Ripeness Classification using CNN
 
 ## 📌 Project Overview
