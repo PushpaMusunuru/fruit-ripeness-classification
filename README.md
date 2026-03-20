@@ -30,3 +30,78 @@ The model is built using Convolutional Neural Networks (CNN) and allows users to
 ---
 
 ## 📂 Project Structure
+fruit-ripeness-classification/
+│── dataset/ # (ignored in GitHub)
+│── model/
+│ ├── train.py
+│ ├── test.py
+│── app/
+│ ├── app.py
+│ ├── templates/
+│ │ └── index.html
+│ ├── static/
+│ └── uploads/
+│── requirements.txt
+│── README.md
+│── .gitignore
+
+---
+
+## 📊 Dataset
+- Dataset sourced from Kaggle
+- Contains images categorized into:
+  - Unripe
+  - Ripe
+  - Overripe
+
+⚠️ Note: Dataset is not included due to size limitations.
+
+---
+
+## Model Details
+- CNN with multiple convolution + pooling layers
+- Input size: 128x128
+- Optimizer: Adam
+- Loss: Categorical Crossentropy
+
+---
+
+## How to Run
+
+### 1️ Install dependencies
+pip install -r requirements.txt
+
+### 2️ Train the model
+python model/train.py
+
+### 3 Run the Flask app
+python app/app.py
+
+### 4️ Open browser
+http://127.0.0.1:5000/
+
+---
+
+##  Output
+- Upload an image
+- Get prediction:
+  - Unripe / Ripe / Overripe
+
+---
+
+##  Notes
+- Model file is not uploaded due to size limitations
+- You can train the model locally using the provided script
+
+---
+
+## Future Improvements
+- Support multiple fruits (apple, mango)
+- Improve accuracy using transfer learning
+- Deploy as a web application
+- Add confidence score to predictions
+
+---
+
+## Author
+Rama Pushpa Latha Musunuru
