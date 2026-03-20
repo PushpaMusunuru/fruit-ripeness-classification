@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fruit Ripeness Classifier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+ 
+        :root {
+            --green-deep: #1a3a2a;
+            --green-mid: #2d6a4f;
+            --green-light: #52b788;
+            --yellow: #f4c430;
+            --orange: #e07b39;
+            --cream: #fdf8f0;
+            --warm-white: #fffdf7;
+            --text-dark: #1c1c1c;
+            --text-muted: #6b7b6e;
+            --border: #d4e8d8;
+        }
+ 
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+ 
+        /* Decorative background blobs */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -120px;
+            right: -120px;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, #b7e4c760 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+ 
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -100px;
+            left: -80px;
+            width: 360px;
+            height: 360px;
+            background: radial-gradient(circle, #f4c43030 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+ 
+        .card {
+            background: var(--warm-white);
+            border-radius: 28px;
+            padding: 3rem 3.5rem;
+            width: 100%;
+            max-width: 480px;
+            border: 1px solid var(--border);
+            box-shadow:
+                0 4px 6px -1px rgba(26,58,42,0.05),
+                0 20px 60px -10px rgba(26,58,42,0.12);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+ 
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+ 
+        /* Leaf accent top-right */
+        .card::before {
+            content: '🍃';
+            position: absolute;
+            top: -18px;
+            right: 32px;
+            font-size: 2.4rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.10));
+            animation: sway 4s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+ 
+        @keyframes sway {
+            0%, 100% { transform: rotate(-8deg); }
+            50%       { transform: rotate(8deg); }
+        }
+ 
+        .header {
+            margin-bottom: 2.4rem;
+        }
+ 
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.85rem;
+            border-radius: 50px;
+            margin-bottom: 1rem;
+        }
+ 
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: var(--green-deep);
+            line-height: 1.2;
+        }
+ 
+        h2 span {
+            color: var(--orange);
+        }
+ 
+        .subtitle {
+            margin-top: 0.6rem;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+ 
+        /* File upload zone */
+        .upload-zone {
+            border: 2px dashed var(--green-light);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: linear-gradient(135deg, #f0faf4 0%, #fafff6 100%);
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+ 
+        .upload-zone:hover {
+            border-color: var(--green-mid);
+            background: linear-gradient(135deg, #e4f5eb 0%, #f4fbf0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px -6px rgba(45,106,79,0.18);
+        }
+ 
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+ 
+        .upload-icon {
+            font-size: 2.8rem;
+            display: block;
+            margin-bottom: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+ 
+        .upload-zone:hover .upload-icon {
+            transform: scale(1.15);
+        }
+ 
+        .upload-label {
+            font-size: 0.92rem;
+            color: var(--green-mid);
+            font-weight: 500;
+        }
+ 
+        .upload-hint {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+ 
+        /* Submit button */
+        button[type="submit"] {
+            width: 100%;
+            padding: 0.95rem 1.5rem;
+            background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+ 
+        button[type="submit"]::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.12) 100%);
+        }
+ 
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -6px rgba(26,58,42,0.4);
+        }
+ 
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+ 
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 2rem 0;
+        }
+ 
+        /* Result section */
+        .result-section {
+            animation: fadeIn 0.5s ease both;
+        }
+ 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+ 
+        .result-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
+        }
+ 
+        .prediction-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--yellow), var(--orange));
+            color: #fff;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 0.55rem 1.3rem;
+            border-radius: 50px;
+            box-shadow: 0 6px 20px -4px rgba(224,123,57,0.45);
+            margin-bottom: 1.2rem;
+        }
+ 
+        .prediction-pill::before {
+            content: '✦';
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+ 
+        .preview-wrapper {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 3px solid var(--border);
+            box-shadow: 0 8px 24px -6px rgba(26,58,42,0.14);
+            display: inline-block;
+        }
+ 
+        .preview-wrapper img {
+            display: block;
+            width: 200px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+ 
+<div class="card">
+    <div class="header">
+        <div class="badge">AI Powered</div>
+        <h2>Fruit <span>Ripeness</span><br>Classifier</h2>
+        <p class="subtitle">Upload a photo of any fruit and let the model detect its ripeness level.</p>
+    </div>
+ 
+    <form method="POST" enctype="multipart/form-data">
+        <div class="upload-zone">
+            <input type="file" name="file" accept="image/*" required>
+            <span class="upload-icon">🍊</span>
+            <div class="upload-label">Click or drag an image here</div>
+            <div class="upload-hint">PNG, JPG, WEBP — max 10 MB</div>
+        </div>
+ 
+        <button type="submit">Analyse Ripeness →</button>
+    </form>
+ 
+    {% if prediction %}
+    <div class="divider"></div>
+    <div class="result-section">
+        <div class="result-label">Prediction</div>
+        <div class="prediction-pill">{{ prediction }}</div>
+        <br>
+        <div class="preview-wrapper">
+            <img src="{{ img_path }}" alt="Uploaded fruit">
+        </div>
+    </div>
+    {% endif %}
+</div>
+ 
+</body>
+</html>

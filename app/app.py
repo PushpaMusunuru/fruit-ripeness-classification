@@ -1,37 +1,48 @@
-import cv2
+from flask import Flask, render_template, request
+import os
 import numpy as np
+import cv2
 from tensorflow.keras.models import load_model
+
+app = Flask(__name__)
 
 # Load model
 model = load_model("../model/fruit_model.h5")
 
-# Classes
+# Class labels (UPDATE based on your class_indices)
 classes = ['overripe', 'ripe', 'unripe']
 
-# Open webcam
-cap = cv2.VideoCapture(0)
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-while True:
-    ret, frame = cap.read()
 
-    # Resize and preprocess
-    img = cv2.resize(frame, (128,128))
+def predict_image(filepath):
+    img = cv2.imread(filepath)
+    img = cv2.resize(img, (128,128))
     img = img / 255.0
     img = np.reshape(img, (1,128,128,3))
 
-    # Predict
     prediction = model.predict(img)
     label = classes[np.argmax(prediction)]
 
-    # Display result
-    cv2.putText(frame, f"Prediction: {label}", (10,50),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+    return label
 
-    cv2.imshow("Fruit Ripeness Detection", frame)
 
-    # Press ESC to exit
-    if cv2.waitKey(1) & 0xFF == 27:
-        break
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        file = request.files['file']
+        
+        if file:
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(filepath)
 
-cap.release()
-cv2.destroyAllWindows()
+            result = predict_image(filepath)
+
+            return render_template('index.html', prediction=result, img_path=filepath)
+
+    return render_template('index.html')
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
