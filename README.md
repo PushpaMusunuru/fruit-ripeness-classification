@@ -10,6 +10,8 @@ This project is a deep learning-based image classification system that identifie
 The model is built using Convolutional Neural Networks (CNN) and allows users to upload an image through a web interface to get predictions.
 
 ---
+<img width="901" height="927" alt="Screenshot 2026-03-22 174042" src="https://github.com/user-attachments/assets/73632a11-b879-4cbb-a444-beac28c4107f" />
+
 
 ## 🚀 Features
 - Image classification using CNN
@@ -26,24 +28,6 @@ The model is built using Convolutional Neural Networks (CNN) and allows users to
 - OpenCV
 - Flask
 - NumPy
-
----
-
-## 📂 Project Structure
-fruit-ripeness-classification/
-│── dataset/ # (ignored in GitHub)
-│── model/
-│ ├── train.py
-│ ├── test.py
-│── app/
-│ ├── app.py
-│ ├── templates/
-│ │ └── index.html
-│ ├── static/
-│ └── uploads/
-│── requirements.txt
-│── README.md
-│── .gitignore
 
 ---
 
@@ -76,9 +60,6 @@ python model/train.py
 
 ### 3 Run the Flask app
 python app/app.py
-
-### 4️ Open browser
-http://127.0.0.1:5000/
 
 ---
 
